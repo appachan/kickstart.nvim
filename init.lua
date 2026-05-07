@@ -225,8 +225,12 @@ do
   --  See `:help wincmd` for a list of all window commands
   vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
   vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
-  vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
+  -- <C-j> is overridden below to act as <Esc>; use <C-w>j for window navigation.
   vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+
+  -- Use <C-j> as Esc in all modes (carry-over from previous .vimrc)
+  vim.keymap.set({ 'i', 'n', 'v' }, '<C-j>', '<Esc>', { desc = 'Escape' })
+  vim.keymap.set('c', '<C-j>', '<C-c>', { desc = 'Escape (cmdline)' })
 
   -- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
   -- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
@@ -383,18 +387,8 @@ do
   -- change the command under that to load whatever the name of that colorscheme is.
   --
   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-  vim.pack.add { gh 'folke/tokyonight.nvim' }
-  ---@diagnostic disable-next-line: missing-fields
-  require('tokyonight').setup {
-    styles = {
-      comments = { italic = false }, -- Disable italics in comments
-    },
-  }
-
-  -- Load the colorscheme here.
-  -- Like many other themes, this one has different styles, and you could load
-  -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-  vim.cmd.colorscheme 'tokyonight-night'
+  vim.pack.add { gh 'cocopon/iceberg.vim' }
+  vim.cmd.colorscheme 'iceberg'
 
   -- Highlight todo, notes, etc in comments
   vim.pack.add { gh 'folke/todo-comments.nvim' }
@@ -695,7 +689,10 @@ do
     --    https://github.com/pmizio/typescript-tools.nvim
     --
     -- But for many setups, the LSP (`ts_ls`) will work just fine
-    -- ts_ls = {},
+    ts_ls = {},
+    ruby_lsp = {},
+    -- kotlin_lsp is installed via mason but enabled by kotlin.nvim, not here.
+    -- sourcekit (Swift) is configured via lsp/sourcekit.lua and enabled below.
 
     stylua = {}, -- Used to format Lua code
 
@@ -753,7 +750,7 @@ do
   -- You can press `g?` for help in this menu.
   local ensure_installed = vim.tbl_keys(servers or {})
   vim.list_extend(ensure_installed, {
-    -- You can add other tools here that you want Mason to install
+    'kotlin-lsp', -- enabled by kotlin.nvim, not vim.lsp.enable here
   })
 
   require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -762,6 +759,9 @@ do
     vim.lsp.config(name, server)
     vim.lsp.enable(name)
   end
+
+  -- Swift: sourcekit-lsp ships with Xcode (mason-managed not), configured in lsp/sourcekit.lua
+  vim.lsp.enable 'sourcekit'
 end
 
 -- ============================================================
@@ -789,14 +789,11 @@ do
       lsp_format = 'fallback', -- Use external formatters if configured below, otherwise use LSP formatting. Set to `false` to disable LSP formatting entirely.
     },
     -- You can also specify external formatters in here.
-    formatters_by_ft = {
-      -- rust = { 'rustfmt' },
-      -- Conform can also run multiple formatters sequentially
-      -- python = { "isort", "black" },
-      --
-      -- You can use 'stop_after_first' to run the first available formatter from the list
-      -- javascript = { "prettierd", "prettier", stop_after_first = true },
-    },
+    -- Intentionally empty: formatters vary per project (oxfmt/prettier/biome
+    -- for TS, prettier-ruby/rubocop for Ruby, ktfmt/none for Kotlin, etc).
+    -- With `lsp_format = 'fallback'`, ft without an entry falls through to
+    -- the LSP's own formatting. Override per-project in `.nvim.lua`.
+    formatters_by_ft = {},
   }
 
   vim.keymap.set({ 'n', 'v' }, '<leader>f', function() require('conform').format { async = true } end, { desc = '[F]ormat buffer' })
@@ -970,7 +967,7 @@ do
   -- NOTE: You can add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- require 'custom.plugins'
+  require 'custom.plugins'
 end
 
 -- The line beneath this is called `modeline`. See `:help modeline`
