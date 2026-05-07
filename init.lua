@@ -228,7 +228,7 @@ do
   -- <C-j> is overridden below to act as <Esc>; use <C-w>j for window navigation.
   vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
-  -- Use <C-j> as Esc in all modes (carry-over from previous .vimrc)
+  -- Use <C-j> as Esc in all modes
   vim.keymap.set({ 'i', 'n', 'v' }, '<C-j>', '<Esc>', { desc = 'Escape' })
   vim.keymap.set('c', '<C-j>', '<C-c>', { desc = 'Escape (cmdline)' })
 
