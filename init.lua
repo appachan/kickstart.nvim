@@ -172,6 +172,11 @@ do
   -- See `:help 'confirm'`
   vim.o.confirm = true
 
+  -- Read project-local config (.nvim.lua / .exrc / .nvimrc) from cwd at startup.
+  -- Neovim 0.9+ asks for trust on first load; approve with `:trust`.
+  --   See `:help 'exrc'`
+  vim.o.exrc = true
+
   -- [[ Basic Keymaps ]]
   --  See `:help vim.keymap.set()`
 
