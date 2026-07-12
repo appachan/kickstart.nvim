@@ -172,6 +172,11 @@ do
   -- See `:help 'confirm'`
   vim.o.confirm = true
 
+  -- Read project-local config (.nvim.lua / .exrc / .nvimrc) from cwd at startup.
+  -- Neovim 0.9+ asks for trust on first load; approve with `:trust`.
+  --   See `:help 'exrc'`
+  vim.o.exrc = true
+
   -- [[ Basic Keymaps ]]
   --  See `:help vim.keymap.set()`
 
@@ -773,6 +778,7 @@ do
   vim.pack.add { gh 'stevearc/conform.nvim' }
   require('conform').setup {
     notify_on_error = false,
+    notify_no_formatters = false, -- Don't warn when a filetype has no formatter registered (default: true).
     format_on_save = function(bufnr)
       -- You can specify filetypes to autoformat on save here:
       local enabled_filetypes = {
@@ -786,7 +792,7 @@ do
       end
     end,
     default_format_opts = {
-      lsp_format = 'fallback', -- Use external formatters if configured below, otherwise use LSP formatting. Set to `false` to disable LSP formatting entirely.
+      lsp_format = 'never', -- Do not fall back to LSP formatting; require an explicit external formatter per filetype.
     },
     -- You can also specify external formatters in here.
     -- Intentionally empty: formatters vary per project (oxfmt/prettier/biome
@@ -958,7 +964,7 @@ do
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   -- require 'kickstart.plugins.debug'
-  -- require 'kickstart.plugins.indent_line'
+  require 'kickstart.plugins.indent_line'
   -- require 'kickstart.plugins.lint'
   -- require 'kickstart.plugins.autopairs'
   -- require 'kickstart.plugins.neo-tree'
